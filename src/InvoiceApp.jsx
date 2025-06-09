@@ -230,7 +230,14 @@ export default function InvoiceApp() {
           <CardContent>
             <label className="block mb-2 font-medium text-gray-700">Upload Logo</label>
             <Input type="file" accept="image/*" onChange={handleLogoUpload} />
-            {logo && <img src={logo} alt="Logo Preview" className="mt-4 h-20 object-contain" />}
+            {logo && (
+  <img
+    src={logo}
+    alt="Logo Preview"
+    className="mt-4 h-20 max-h-24 w-auto max-w-full object-contain"
+  />
+)}
+
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input placeholder="Invoice Number" value={invoiceData.invoiceNumber} onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })} />
