@@ -10,7 +10,7 @@ export default function InvoiceApp() {
   const invoiceRef = useRef();
   const [invoiceData, setInvoiceData] = useState({
     invoiceNumber: "000001",
-    from: "",
+    from: "Ryme Interiors",
     to: "",
     items: [{ description: "", quantity: 1, price: 0 }],
     discount: 0,
