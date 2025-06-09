@@ -12,8 +12,10 @@ export default function InvoiceApp() {
     invoiceNumber: "000001",
     from: "Ryme Interiors",
     to: "",
+    toAddress: "",
     items: [{ description: "", quantity: "", price: "" }],
     discount: "",
+    tax: "",
     notes: "",
     currency: "₦",
   });
@@ -42,7 +44,7 @@ export default function InvoiceApp() {
   const addItem = () => {
     setInvoiceData({
       ...invoiceData,
-      items: [...invoiceData.items, { description: "", quantity: "", price: "" }],
+      items: [...invoiceData.items, { description: "", quantity: 1, price: 0 }],
     });
   };
 
@@ -62,14 +64,9 @@ export default function InvoiceApp() {
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     const discount = parseFloat(invoiceData.discount) || 0;
-    return subtotal - (subtotal * discount) / 100;
-  };
-
-  const formatAmount = (amount) => {
-    return Number(amount || 0).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    const tax = parseFloat(invoiceData.tax) || 0;
+    const discounted = subtotal - (subtotal * discount) / 100;
+    return discounted + (discounted * tax) / 100;
   };
 
   const downloadPDF = () => {
@@ -91,6 +88,7 @@ export default function InvoiceApp() {
           <div>
             <h3 style="margin-bottom: 5px;">Billed To:</h3>
             <p><strong>${invoiceData.to}</strong></p>
+            <p>${invoiceData.toAddress}</p>
           </div>
           <div style="text-align: right;">
             <h3 style="margin-bottom: 5px;">From:</h3>
@@ -112,11 +110,11 @@ export default function InvoiceApp() {
               <tr>
                 <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
                 <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
-                  ${invoiceData.currency} ${formatAmount(item.price)}
+                  ${invoiceData.currency} ${Number(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
                 <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
                 <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
-                  ${invoiceData.currency} ${formatAmount(item.price * item.quantity)}
+                  ${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
               </tr>
             `).join("")}
@@ -127,15 +125,19 @@ export default function InvoiceApp() {
           <table style="width: 300px;">
             <tr>
               <td style="padding: 8px 0;">Subtotal:</td>
-              <td style="text-align: right;">${invoiceData.currency} ${formatAmount(calculateSubtotal())}</td>
+              <td style="text-align: right;">${invoiceData.currency} ${Number(calculateSubtotal().toFixed(2)).toLocaleString()}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0;">Discount (${invoiceData.discount}%):</td>
-              <td style="text-align: right;">-${invoiceData.currency} ${formatAmount((calculateSubtotal() * invoiceData.discount) / 100)}</td>
+              <td style="text-align: right;">-${invoiceData.currency} ${Number(((calculateSubtotal() * invoiceData.discount) / 100).toFixed(2)).toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;">Tax (${invoiceData.tax}%):</td>
+              <td style="text-align: right;">+${invoiceData.currency} ${Number((((calculateSubtotal() - (calculateSubtotal() * invoiceData.discount / 100)) * invoiceData.tax) / 100).toFixed(2)).toLocaleString()}</td>
             </tr>
             <tr style="border-top: 2px solid #ccc;">
               <td style="padding: 12px 0; font-weight: bold;">Total Due:</td>
-              <td style="text-align: right; font-weight: bold; color: #000000;">${invoiceData.currency} ${formatAmount(calculateTotal())}</td>
+              <td style="text-align: right; font-weight: bold; color: #000000;">${invoiceData.currency} ${Number(calculateTotal().toFixed(2)).toLocaleString()}</td>
             </tr>
           </table>
         </div>
@@ -162,6 +164,7 @@ export default function InvoiceApp() {
       setLogo(reader.result);
       localStorage.setItem("invoiceLogo", reader.result);
     };
+
     if (file) reader.readAsDataURL(file);
   };
 
@@ -222,6 +225,7 @@ export default function InvoiceApp() {
             <div className="grid grid-cols-2 gap-4">
               <Input placeholder="From (Your Company Name)" value={invoiceData.from} onChange={(e) => setInvoiceData({ ...invoiceData, from: e.target.value })} />
               <Input placeholder="To (Client Name)" value={invoiceData.to} onChange={(e) => setInvoiceData({ ...invoiceData, to: e.target.value })} />
+              <Input placeholder="Client Address" value={invoiceData.toAddress} onChange={(e) => setInvoiceData({ ...invoiceData, toAddress: e.target.value })} />
             </div>
           </CardContent>
         </Card>
@@ -244,10 +248,11 @@ export default function InvoiceApp() {
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <Input type="number" placeholder="Discount %" value={invoiceData.discount} onChange={(e) => setInvoiceData({ ...invoiceData, discount: parseFloat(e.target.value) })} />
+              <Input type="number" placeholder="Tax %" value={invoiceData.tax} onChange={(e) => setInvoiceData({ ...invoiceData, tax: parseFloat(e.target.value) })} />
               <Input placeholder="Notes" value={invoiceData.notes} onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })} />
             </div>
             <p className="font-semibold text-right text-lg mt-4">
-              Total: {invoiceData.currency} {formatAmount(calculateTotal())}
+              Total: {invoiceData.currency} {Number(calculateTotal()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </CardContent>
         </Card>
