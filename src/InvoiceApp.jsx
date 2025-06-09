@@ -10,7 +10,6 @@ const firebaseConfig = {
   storageBucket: "invoicesync-c0677.firebasestorage.app",
   messagingSenderId: "825474089888",
   appId: "1:825474089888:web:e2f9ce61230ac3e8ee1ac5"
-  //measurementId: "G-6BL7897GM3"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -110,7 +109,56 @@ export default function InvoiceApp() {
             <p><strong>${invoiceData.from}</strong></p>
           </div>
         </div>
-        ... rest of your existing PDF code ...
+        <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+  <thead>
+    <tr style="background-color: #000000; color: #ffffff; height: 30px;">
+      <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Description</th>
+      <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Price</th>
+      <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Quantity</th>
+      <th style="text-align: right; padding: 12px; border: 1px solid #ddd;">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${invoiceData.items.map(item => `
+      <tr>
+        <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
+        <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
+          ${invoiceData.currency} ${Number(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </td>
+        <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
+        <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
+          ${invoiceData.currency} ${Number(item.price * item.quantity || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </td>
+      </tr>
+    `).join("")}
+  </tbody>
+</table>
+
+<div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+  <table style="width: 300px;">
+    <tr>
+      <td style="padding: 8px 0;">Subtotal:</td>
+      <td style="text-align: right;">${invoiceData.currency} ${Number(calculateSubtotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0;">Discount (${invoiceData.discount}%):</td>
+      <td style="text-align: right;">-${invoiceData.currency} ${Number((calculateSubtotal() * invoiceData.discount / 100)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0;">Tax (${invoiceData.tax}%):</td>
+      <td style="text-align: right;">+${invoiceData.currency} ${Number(((calculateSubtotal() - (calculateSubtotal() * invoiceData.discount / 100)) * invoiceData.tax / 100)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+    </tr>
+    <tr style="border-top: 2px solid #ccc;">
+      <td style="padding: 12px 0; font-weight: bold;">Total Due:</td>
+      <td style="text-align: right; font-weight: bold; color: #000;">${invoiceData.currency} ${Number(calculateTotal()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+    </tr>
+  </table>
+</div>
+
+<div style="text-align: center; margin-top: 50px; color: #555; font-style: italic;">
+  <p>Thank you for your business!</p>
+</div>
+
     `;
 
     html2pdf().set({
