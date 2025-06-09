@@ -52,8 +52,13 @@ export default function InvoiceApp() {
   };
 
   const calculateSubtotal = () => {
-    return invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
-  };
+  return invoiceData.items.reduce((sum, item) => {
+    const quantity = parseFloat(item.quantity) || 0;
+    const price = parseFloat(item.price) || 0;
+    return sum + quantity * price;
+  }, 0);
+};
+
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
