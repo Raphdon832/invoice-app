@@ -23,7 +23,7 @@ const CardContent = ({ children }) => <div className="space-y-3">{children}</div
 export default function InvoiceApp() {
   const invoiceRef = useRef();
   const [invoiceData, setInvoiceData] = useState({
-    invoiceNumber: "000001",
+    invoiceNumber: "00001",
     from: "Ryme Interiors",
     to: "",
     toAddress: "",
@@ -38,6 +38,43 @@ export default function InvoiceApp() {
     return localStorage.getItem("invoiceLogo") || "/default-logo.png";
   });
 
+  const getNextInvoiceNumber = async () => {
+  const metaDocRef = doc(db, "meta", "invoiceCounter");
+  const metaDoc = await getDoc(metaDocRef);
+
+  let currentNumber = 1;
+
+  if (metaDoc.exists()) {
+    currentNumber = metaDoc.data().lastNumber + 1;
+  }
+
+  // Update Firestore with new number
+  await setDoc(metaDocRef, { lastNumber: currentNumber });
+
+  // Save locally too
+  localStorage.setItem("lastInvoiceNumber", String(currentNumber).padStart(4, '0'));
+
+  return String(currentNumber).padStart(4, '0');
+};
+
+const createNewInvoice = async () => {
+  const nextNumber = await getNextInvoiceNumber();
+
+  setInvoiceData({
+    invoiceNumber: nextNumber,
+    from: "Ryme Interiors",
+    to: "",
+    toAddress: "",
+    items: [{ description: "", quantity: "", price: "" }],
+    discount: "",
+    tax: "",
+    notes: "",
+    currency: invoiceData.currency,
+  });
+};
+
+
+
   const [savedInvoices, setSavedInvoices] = useState(() => {
     const saved = localStorage.getItem("savedInvoices");
     return saved ? JSON.parse(saved) : {};
@@ -46,8 +83,17 @@ export default function InvoiceApp() {
   const [selectedInvoice, setSelectedInvoice] = useState("");
 
   useEffect(() => {
-    localStorage.setItem("savedInvoices", JSON.stringify(savedInvoices));
-  }, [savedInvoices]);
+  const initInvoiceNumber = async () => {
+    const stored = localStorage.getItem("lastInvoiceNumber");
+    if (stored) {
+      setInvoiceData(prev => ({ ...prev, invoiceNumber: stored }));
+    } else {
+      const next = await getNextInvoiceNumber();
+      setInvoiceData(prev => ({ ...prev, invoiceNumber: next }));
+    }
+  };
+  initInvoiceNumber();
+}, []);
 
   const updateItem = (index, key, value) => {
     const items = [...invoiceData.items];
