@@ -108,7 +108,7 @@ const calculateTotal = () => {
                 <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
                 <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${invoiceData.currency} ${item.price.toFixed(2)}</td>
                 <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
-                <td style="padding: 12px; text-align: right; border: 1px solid #eee;">${invoiceData.currency} ${(item.price * item.quantity).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: right; border: 1px solid #eee;">${invoiceData.currency} ${Number((item.price * item.quantity).toFixed(2)).toLocaleString()}</td>
               </tr>
             `).join("")}
           </tbody>
@@ -240,7 +240,7 @@ const calculateTotal = () => {
               <Input placeholder="Notes" value={invoiceData.notes} onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })} />
             </div>
             <p className="font-semibold text-right text-lg mt-4">
-              Total: {invoiceData.currency} {calculateTotal().toFixed(2)}
+             Total: {invoiceData.currency} {Number(calculateTotal().toFixed(2)).toLocaleString()}
             </p>
           </CardContent>
         </Card>
