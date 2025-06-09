@@ -102,20 +102,21 @@ const calculateTotal = () => {
             <th style="text-align: right; padding: 12px; border: 1px solid #ddd;">Amount</th>
           </tr>
         </thead>
-        <tbody>
+ <tbody>
   ${invoiceData.items.map(item => `
     <tr>
       <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
       <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
-        ${invoiceData.currency} ${Number(item.price || 0).toFixed(2).toLocaleString()}
+        ${invoiceData.currency} ${Number(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
       <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
       <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
-        ${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toFixed(2).toLocaleString()}
+        ${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
     </tr>
   `).join("")}
 </tbody>
+
 
       </table>
 
