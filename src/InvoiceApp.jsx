@@ -60,10 +60,12 @@ export default function InvoiceApp() {
 };
 
 
-  const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    return subtotal - (subtotal * invoiceData.discount) / 100;
-  };
+const calculateTotal = () => {
+  const subtotal = calculateSubtotal();
+  const discount = parseFloat(invoiceData.discount) || 0;
+  return subtotal - (subtotal * discount) / 100;
+};
+
 
   const downloadPDF = () => {
     const element = document.createElement("div");
