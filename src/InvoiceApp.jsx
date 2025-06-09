@@ -13,7 +13,7 @@ export default function InvoiceApp() {
     from: "Ryme Interiors",
     to: "",
     items: [{ description: "", quantity: "", price: "" }],
-    discount: 0,
+    discount: "",
     notes: "",
     currency: "₦",
   });
