@@ -122,7 +122,8 @@ const calculateTotal = () => {
             </tr>
             <tr>
               <td style="padding: 8px 0;">Discount (${invoiceData.discount}%):</td>
-              <td style="text-align: right;">-${invoiceData.currency} ${((calculateSubtotal() * invoiceData.discount) / 100).toFixed(2)}</td>
+              <td style="text-align: right;">-${invoiceData.currency} ${((calculateSubtotal() * (parseFloat(invoiceData.discount) || 0)) / 100).toFixed(2)}
+</td>
             </tr>
             <tr style="border-top: 2px solid #ccc;">
               <td style="padding: 12px 0; font-weight: bold;">Total Due:</td>
