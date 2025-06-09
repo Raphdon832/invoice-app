@@ -215,7 +215,7 @@ export default function InvoiceApp() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Invoice Generator</h1>
 
-        <div className="mb-4 flex justify-between gap-4">
+        <div className="mb-4 flex flex-col sm:flex-row justify-between gap-4">
           <Button onClick={handleSaveInvoice}>Save Invoice</Button>
           <Button onClick={syncFromCloud}>Sync from Cloud</Button>
           <select value={selectedInvoice} onChange={handleLoadInvoice} className="border rounded px-3 py-2">
@@ -232,7 +232,7 @@ export default function InvoiceApp() {
             <Input type="file" accept="image/*" onChange={handleLogoUpload} />
             {logo && <img src={logo} alt="Logo Preview" className="mt-4 h-20 object-contain" />}
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input placeholder="Invoice Number" value={invoiceData.invoiceNumber} onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })} />
               <select value={invoiceData.currency} onChange={handleCurrencyChange} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="₦">₦ - Naira</option>
@@ -247,7 +247,7 @@ export default function InvoiceApp() {
 
         <Card>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input placeholder="From (Your Company Name)" value={invoiceData.from} onChange={(e) => setInvoiceData({ ...invoiceData, from: e.target.value })} />
               <Input placeholder="To (Client Name)" value={invoiceData.to} onChange={(e) => setInvoiceData({ ...invoiceData, to: e.target.value })} />
               <Input placeholder="Client Address" value={invoiceData.toAddress} onChange={(e) => setInvoiceData({ ...invoiceData, toAddress: e.target.value })} />
@@ -258,7 +258,7 @@ export default function InvoiceApp() {
         <Card>
           <CardContent>
             {invoiceData.items.map((item, index) => (
-              <div key={index} className="grid grid-cols-4 gap-3 mb-3">
+              <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
                 <Input placeholder="Description" value={item.description} onChange={(e) => updateItem(index, "description", e.target.value)} />
                 <Input type="number" placeholder="Quantity" value={item.quantity} onChange={(e) => updateItem(index, "quantity", parseFloat(e.target.value))} />
                 <Input type="number" placeholder="Unit Price" value={item.price} onChange={(e) => updateItem(index, "price", parseFloat(e.target.value))} />
@@ -271,18 +271,21 @@ export default function InvoiceApp() {
 
         <Card>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input type="number" placeholder="Discount %" value={invoiceData.discount} onChange={(e) => setInvoiceData({ ...invoiceData, discount: parseFloat(e.target.value) })} />
               <Input type="number" placeholder="Tax %" value={invoiceData.tax} onChange={(e) => setInvoiceData({ ...invoiceData, tax: parseFloat(e.target.value) })} />
               <Input placeholder="Notes" value={invoiceData.notes} onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })} />
             </div>
-            <p className="font-semibold text-right text-lg mt-4">
-              Total: {invoiceData.currency} {Number(calculateTotal()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+
+            <div className="text-right">
+                <p className="font-semibold text-lg mt-4">
+                  Total: {invoiceData.currency} {Number(calculateTotal()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+            </div>
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
           <Button onClick={() => window.print()}>Print</Button>
           <Button onClick={downloadPDF}>Download PDF</Button>
         </div>
