@@ -103,15 +103,20 @@ const calculateTotal = () => {
           </tr>
         </thead>
         <tbody>
-          ${invoiceData.items.map(item => `
-            <tr>
-              <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
-              <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${invoiceData.currency} ${Number(item.price || 0).toFixed(2).toLocaleString()}</td>
-              <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
-              <td style="padding: 12px; text-align: right; border: 1px solid #eee;">${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toFixed(2).toLocaleString()}</td>
-            </tr>
-          `).join("")}
-        </tbody>
+  ${invoiceData.items.map(item => `
+    <tr>
+      <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
+      <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
+        ${invoiceData.currency} ${Number(item.price || 0).toFixed(2).toLocaleString()}
+      </td>
+      <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
+      <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
+        ${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toFixed(2).toLocaleString()}
+      </td>
+    </tr>
+  `).join("")}
+</tbody>
+
       </table>
 
       <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
