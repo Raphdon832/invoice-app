@@ -142,7 +142,11 @@ export default function InvoiceApp() {
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
-    reader.onloadend = () => setLogo(reader.result);
+    reader.onloadend = () => {
+  setLogo(reader.result);
+  localStorage.setItem("invoiceLogo", reader.result);
+};
+
     if (file) reader.readAsDataURL(file);
   };
 
