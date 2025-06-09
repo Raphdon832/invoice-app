@@ -18,7 +18,10 @@ export default function InvoiceApp() {
     currency: "₦",
   });
 
-  const [logo, setLogo] = useState(null);
+  const [logo, setLogo] = useState(() => {
+  return localStorage.getItem("invoiceLogo") || "/default-logo.png";
+});
+
   const [savedInvoices, setSavedInvoices] = useState(() => {
     const saved = localStorage.getItem("savedInvoices");
     return saved ? JSON.parse(saved) : {};
