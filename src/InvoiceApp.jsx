@@ -19,8 +19,8 @@ export default function InvoiceApp() {
   });
 
   const [logo, setLogo] = useState(() => {
-  return localStorage.getItem("invoiceLogo") || "/default-logo.png";
-});
+    return localStorage.getItem("invoiceLogo") || "/default-logo.png";
+  });
 
   const [savedInvoices, setSavedInvoices] = useState(() => {
     const saved = localStorage.getItem("savedInvoices");
@@ -42,7 +42,7 @@ export default function InvoiceApp() {
   const addItem = () => {
     setInvoiceData({
       ...invoiceData,
-      items: [...invoiceData.items, { description: "", quantity: 1, price: 0 }],
+      items: [...invoiceData.items, { description: "", quantity: "", price: "" }],
     });
   };
 
@@ -52,115 +52,116 @@ export default function InvoiceApp() {
   };
 
   const calculateSubtotal = () => {
-  return invoiceData.items.reduce((sum, item) => {
-    const quantity = parseFloat(item.quantity) || 0;
-    const price = parseFloat(item.price) || 0;
-    return sum + quantity * price;
-  }, 0);
-};
+    return invoiceData.items.reduce((sum, item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const price = parseFloat(item.price) || 0;
+      return sum + quantity * price;
+    }, 0);
+  };
 
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    const discount = parseFloat(invoiceData.discount) || 0;
+    return subtotal - (subtotal * discount) / 100;
+  };
 
-const calculateTotal = () => {
-  const subtotal = calculateSubtotal();
-  const discount = parseFloat(invoiceData.discount) || 0;
-  return subtotal - (subtotal * discount) / 100;
-};
-
+  const formatAmount = (amount) => {
+    return Number(amount || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
 
   const downloadPDF = () => {
-  const element = document.createElement("div");
-  element.innerHTML = `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: auto; padding: 40px; color: #222;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; padding-bottom: 20px;">
-        <div>
-          ${logo ? `<img src="${logo}" style="height: 60px;" />` : "<h2>Your Logo</h2>"}
+    const element = document.createElement("div");
+    element.innerHTML = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: auto; padding: 40px; color: #222;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e0e0e0; padding-bottom: 20px;">
+          <div>
+            ${logo ? `<img src="${logo}" style="height: 60px;" />` : "<h2>Your Logo</h2>"}
+          </div>
+          <div style="text-align: right;">
+            <h1 style="margin: 0; font-size: 32px; letter-spacing: 2px;">INVOICE</h1>
+            <p style="margin: 4px 0;">Invoice #: <strong>${invoiceData.invoiceNumber}</strong></p>
+            <p>Date: <strong>${new Date().toLocaleDateString()}</strong></p>
+          </div>
         </div>
-        <div style="text-align: right;">
-          <h1 style="margin: 0; font-size: 32px; letter-spacing: 2px;">INVOICE</h1>
-          <p style="margin: 4px 0;">Invoice #: <strong>${invoiceData.invoiceNumber}</strong></p>
-          <p>Date: <strong>${new Date().toLocaleDateString()}</strong></p>
+
+        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+          <div>
+            <h3 style="margin-bottom: 5px;">Billed To:</h3>
+            <p><strong>${invoiceData.to}</strong></p>
+          </div>
+          <div style="text-align: right;">
+            <h3 style="margin-bottom: 5px;">From:</h3>
+            <p><strong>${invoiceData.from}</strong></p>
+          </div>
         </div>
-      </div>
 
-      <div style="margin-top: 30px; display: flex; justify-content: space-between;">
-        <div>
-          <h3 style="margin-bottom: 5px;">Billed To:</h3>
-          <p><strong>${invoiceData.to}</strong></p>
-        </div>
-        <div style="text-align: right;">
-          <h3 style="margin-bottom: 5px;">From:</h3>
-          <p><strong>${invoiceData.from}</strong></p>
-        </div>
-      </div>
-
-      <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
-        <thead>
-          <tr style="background-color: #000000; color: #ffffff; height: 30px;">
-            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Description</th>
-            <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Price</th>
-            <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Quantity</th>
-            <th style="text-align: right; padding: 12px; border: 1px solid #ddd;">Amount</th>
-          </tr>
-        </thead>
- <tbody>
-  ${invoiceData.items.map(item => `
-    <tr>
-      <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
-      <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
-        ${invoiceData.currency} ${Number(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-      </td>
-      <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
-      <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
-        ${invoiceData.currency} ${Number((item.price * item.quantity) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-      </td>
-    </tr>
-  `).join("")}
-</tbody>
-
-
-      </table>
-
-      <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
-        <table style="width: 300px;">
-          <tr>
-            <td style="padding: 8px 0;">Subtotal:</td>
-            <td style="text-align: right;">${invoiceData.currency} ${Number(calculateSubtotal().toFixed(2)).toLocaleString()}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0;">Discount (${invoiceData.discount}%):</td>
-            <td style="text-align: right;">-${invoiceData.currency} ${Number(((calculateSubtotal() * invoiceData.discount) / 100).toFixed(2)).toLocaleString()}</td>
-          </tr>
-          <tr style="border-top: 2px solid #ccc;">
-            <td style="padding: 12px 0; font-weight: bold;">Total Due:</td>
-            <td style="text-align: right; font-weight: bold; color: #000000;">${invoiceData.currency} ${Number(calculateTotal().toFixed(2)).toLocaleString()}</td>
-          </tr>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+          <thead>
+            <tr style="background-color: #000000; color: #ffffff; height: 30px;">
+              <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Description</th>
+              <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Price</th>
+              <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Quantity</th>
+              <th style="text-align: right; padding: 12px; border: 1px solid #ddd;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoiceData.items.map(item => `
+              <tr>
+                <td style="padding: 12px; border: 1px solid #eee;">${item.description}</td>
+                <td style="padding: 12px; text-align: center; border: 1px solid #eee;">
+                  ${invoiceData.currency} ${formatAmount(item.price)}
+                </td>
+                <td style="padding: 12px; text-align: center; border: 1px solid #eee;">${item.quantity}</td>
+                <td style="padding: 12px; text-align: right; border: 1px solid #eee;">
+                  ${invoiceData.currency} ${formatAmount(item.price * item.quantity)}
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
         </table>
+
+        <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+          <table style="width: 300px;">
+            <tr>
+              <td style="padding: 8px 0;">Subtotal:</td>
+              <td style="text-align: right;">${invoiceData.currency} ${formatAmount(calculateSubtotal())}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;">Discount (${invoiceData.discount}%):</td>
+              <td style="text-align: right;">-${invoiceData.currency} ${formatAmount((calculateSubtotal() * invoiceData.discount) / 100)}</td>
+            </tr>
+            <tr style="border-top: 2px solid #ccc;">
+              <td style="padding: 12px 0; font-weight: bold;">Total Due:</td>
+              <td style="text-align: right; font-weight: bold; color: #000000;">${invoiceData.currency} ${formatAmount(calculateTotal())}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px; color: #555; font-style: italic;">
+          <p>Thank you for your business!</p>
+        </div>
       </div>
+    `;
 
-      <div style="text-align: center; margin-top: 50px; color: #555; font-style: italic;">
-        <p>Thank you for your business!</p>
-      </div>
-    </div>
-  `;
-
-  html2pdf().set({
-    margin: 0,
-    filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-  }).from(element).save();
-};
-
+    html2pdf().set({
+      margin: 0,
+      filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    }).from(element).save();
+  };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
-  setLogo(reader.result);
-  localStorage.setItem("invoiceLogo", reader.result);
-};
-
+      setLogo(reader.result);
+      localStorage.setItem("invoiceLogo", reader.result);
+    };
     if (file) reader.readAsDataURL(file);
   };
 
@@ -246,7 +247,7 @@ const calculateTotal = () => {
               <Input placeholder="Notes" value={invoiceData.notes} onChange={(e) => setInvoiceData({ ...invoiceData, notes: e.target.value })} />
             </div>
             <p className="font-semibold text-right text-lg mt-4">
-             Total: {invoiceData.currency} {Number(calculateTotal().toFixed(2)).toLocaleString()}
+              Total: {invoiceData.currency} {formatAmount(calculateTotal())}
             </p>
           </CardContent>
         </Card>
@@ -254,7 +255,7 @@ const calculateTotal = () => {
         <div className="flex justify-center gap-4 mt-6">
           <Button onClick={() => window.print()}>Print</Button>
           <Button onClick={downloadPDF}>Download PDF</Button>
-        </div>Add commentMore actions
+        </div>
       </div>
     </div>
   );
